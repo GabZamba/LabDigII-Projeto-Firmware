@@ -17,9 +17,13 @@
 
 #include "config.h"
 
+#define DEBUG 0
+
 static String cube_distance;
 static String distance;
 static String angle;
+
+static String data;
 
 String user = "grupo2-bancadaA3";
 String passwd = "digi#@2A3";
@@ -35,8 +39,6 @@ unsigned long lastMsg = 0;
 #define MSG_BUFFER_SIZE (50)
 char msg[MSG_BUFFER_SIZE];
 int value = 0;
-
-// SoftwareSerial mySerial = SoftwareSerial(RX_PIN, TX_PIN);
 
 void setup_wifi() {
     delay(10);
@@ -65,7 +67,7 @@ void reconnect() {
     // Loop until we're reconnected
     while (!client.connected()) {
         
-        Serial.print("Attempting MQTT connection...");
+        //Serial.print("Attempting MQTT connection...");
         
         // Create a random client ID
         String clientId = user;
@@ -74,22 +76,17 @@ void reconnect() {
         // Attempt to connect
         if (client.connect(clientId.c_str(), user.c_str(), passwd.c_str())) {
         
-        Serial.println("connected");
+        //Serial.println("connected");
         // Once connected, publish an announcement...
         client.publish((user+"/homehello").c_str(), "hello world");
 
-        // client.subscribe((user+"/ledhome").c_str());
-
-        // client.subscribe((user+"/S0").c_str());
-        // client.subscribe((user+"/S1").c_str());
-        // client.subscribe((user+"/S2").c_str());
-        // client.subscribe((user+"/S3").c_str());
+        client.subscribe((user+"/virtual_cube").c_str());
         
         } else {
         
-        Serial.print("failed, rc=");
-        Serial.print(client.state());
-        Serial.println(" try again in 5 seconds");
+        //Serial.print("failed, rc=");
+        //Serial.print(client.state());
+        //Serial.println(" try again in 5 seconds");
         
         // Wait 5 seconds before retrying
         delay(5000);
@@ -99,6 +96,8 @@ void reconnect() {
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
+
+    #if DEBUG == 1
     Serial.print("Message arrived [");
     Serial.print(topic);
     Serial.print("] ");
@@ -106,24 +105,36 @@ void callback(char* topic, byte* payload, unsigned int length) {
         Serial.print((char)payload[i]);
     }
     Serial.println();
+    #endif
 
-    // Checks every led topic, update state if it matches
-    // for (int i = 0; i <= 3; i++) {
-    //     if (strcmp(topic, leds[i].get_topic()) == 0) {
-    //         if ((char)payload[0] == '1') {
-    //             leds[i].set_state(true);
-    //         }
-    //         else {
-    //             leds[i].set_state(false);
-    //         }
-    //     }
-    // }
+    // Allocate the correct amount of memory for the payload copy
+    byte* p = (byte*)malloc(length);
+    // Copy the payload to the new buffer
+    memcpy(p,payload,length);
+
+    if (strcmp(topic, (user+"/virtual_cube").c_str()) == 0) {
+
+        int value = String((char*)p).toInt();
+
+        value = map(value, 0, 100, 9, 440);
+
+        String value_str = String(value);
+
+        while(value_str.length() < 3) {
+            value_str = "0" + value_str;
+        }
+
+        Serial.write((value_str + "#").c_str());
+    }
+
+    // Free the memory
+    free(p);
+}
 
 
 void setup() {
 
-
-    Serial.begin(115200, SERIAL_7E2);   // inicia a comunicação serial com o computador a 115200 bauds                                      
+    Serial.begin(9600, SERIAL_7E2);   // inicia a comunicação serial com o computador a 115200 bauds                                      
 
     setup_wifi();
     client.setServer(mqtt_server, 80);
@@ -137,20 +148,26 @@ void loop() {
     }
     client.loop();
 
-    // Serial.println(mySerial.available());
-    if (Serial.available()>0) {
+    if (Serial.available()) {
 
-        cube_distance = Serial.readStringUntil('.');
-        distance = Serial.readStringUntil(',');
-        angle = Serial.readStringUntil(';');
+        // cube_distance = Serial.readStringUntil('.');
+        // angle = Serial.readStringUntil(',');
+        // distance = Serial.readStringUntil(';');
 
-        Serial.println(cube_distance);
-        Serial.println(distance);
-        Serial.println(angle);
+        //Serial.println(cube_distance);
+        //Serial.println(distance);
+        //Serial.println(angle);
 
-        client.publish((user+"/cube_distance").c_str(), cube_distance.c_str());
-        client.publish((user+"/distance").c_str(), distance.c_str());
-        client.publish((user+"/angle").c_str(), angle.c_str());
+        // client.publish((user+"/cube_distance").c_str(), cube_distance.c_str());
+        // client.publish((user+"/angle").c_str(), angle.c_str());
+        // client.publish((user+"/distance").c_str(), distance.c_str());
+
+        data = Serial.readStringUntil(';');
+        // Serial.println(data);
+
+        if (data.length() == 11) {
+            client.publish((user+"/all").c_str(), data.c_str());
+        }
     }
 
     unsigned long now = millis();
@@ -158,10 +175,10 @@ void loop() {
         lastMsg = now;
         ++value;
         snprintf (msg, MSG_BUFFER_SIZE, "hello world #%ld", value);
-        Serial.print("Publish message: ");
-        Serial.println(msg);
+        //Serial.print("Publish message: ");
+        //Serial.println(msg);
         client.publish((user+"/homehello").c_str(), msg);
     }
 
-    delay(100);
+    //delay(100);
 }
