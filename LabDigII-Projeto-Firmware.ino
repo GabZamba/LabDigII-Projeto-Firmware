@@ -1,11 +1,11 @@
 /**
- * @file Fliperama-ESP8266.ino
+ * @file LabDigII-Projeto-Firmware.ino
  * 
  * @author Pedro Henrique Martins de Santi <pedrodesanti@usp.br>
  * 
  * @brief Main ESP8266 code
  * 
- * @date 2022-03-30
+ * @date 2022-12
  * 
  * @copyright Copyright (c) 2022
  * 
@@ -76,7 +76,10 @@ void reconnect() {
         // Attempt to connect
         if (client.connect(clientId.c_str(), user.c_str(), passwd.c_str())) {
         
-        //Serial.println("connected");
+        #if DEBUG == 1
+        Serial.println("connected");
+        #endif
+
         // Once connected, publish an announcement...
         client.publish((user+"/homehello").c_str(), "hello world");
 
@@ -84,9 +87,11 @@ void reconnect() {
         
         } else {
         
-        //Serial.print("failed, rc=");
-        //Serial.print(client.state());
-        //Serial.println(" try again in 5 seconds");
+        #if DEBUG == 1
+        Serial.print("failed, rc=");
+        Serial.print(client.state());
+        Serial.println(" try again in 5 seconds");
+        #endif
         
         // Wait 5 seconds before retrying
         delay(5000);
@@ -116,8 +121,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
         int value = String((char*)p).toInt();
 
-        value = map(value, 0, 100, 9, 440);
-
         String value_str = String(value);
 
         while(value_str.length() < 3) {
@@ -134,7 +137,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
 void setup() {
 
-    Serial.begin(9600, SERIAL_7E2);   // inicia a comunicação serial com o computador a 115200 bauds                                      
+    Serial.begin(9600, SERIAL_7E2);   // inicia a comunicação serial com o computador a 9600 bauds                                      
 
     setup_wifi();
     client.setServer(mqtt_server, 80);
@@ -150,20 +153,11 @@ void loop() {
 
     if (Serial.available()) {
 
-        // cube_distance = Serial.readStringUntil('.');
-        // angle = Serial.readStringUntil(',');
-        // distance = Serial.readStringUntil(';');
-
-        //Serial.println(cube_distance);
-        //Serial.println(distance);
-        //Serial.println(angle);
-
-        // client.publish((user+"/cube_distance").c_str(), cube_distance.c_str());
-        // client.publish((user+"/angle").c_str(), angle.c_str());
-        // client.publish((user+"/distance").c_str(), distance.c_str());
-
         data = Serial.readStringUntil(';');
-        // Serial.println(data);
+
+        #if DEBUG == 1
+        Serial.println(data);
+        #endif
 
         if (data.length() == 11) {
             client.publish((user+"/all").c_str(), data.c_str());
@@ -175,10 +169,13 @@ void loop() {
         lastMsg = now;
         ++value;
         snprintf (msg, MSG_BUFFER_SIZE, "hello world #%ld", value);
-        //Serial.print("Publish message: ");
-        //Serial.println(msg);
+
+        #if DEBUG == 1
+        Serial.print("Publish message: ");
+        Serial.println(msg);
+        #endif
+
         client.publish((user+"/homehello").c_str(), msg);
     }
 
-    //delay(100);
 }
