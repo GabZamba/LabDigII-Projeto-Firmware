@@ -2,32 +2,64 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-# Projeto
+# Beam & Ball Brasil - Firmware
 
-NOME A DEFINIR
+# Requisitos do Projeto
 
-# Requisitos do Projeto:
-Para realizar a instalação do projetos, pressupõe-se que seu computador já apresente ???????. Visite [este link](https://www.google.com.br) para mais informações
+O projeto utiliza um ESP8266 como microcontolador por conta da sua capacidade de comunicação com a internet via Wi-Fi. Para gravar o código deste repositório no ESP8266, é necessário utilizar o [Arduino IDE](https://www.arduino.cc/en/software) como ferramenta.
 
-# Instalação do Projeto:
+# Gravando o Código no ESP8266
 
-## Etapa 1: Clonagem do Repositório
-Para instalar o projeto, inicialmente será realizada a clonagem do repositório. Utilizando seu Terminal de Comando preferido, navegue até a pasta destinada ao projeto, como por exemplo:
+## Clonagem do Repositório
+Para instalar o projeto, inicialmente será realizada a clonagem do repositório. Utilizando seu Terminal de Comando preferido, navegue até a pasta que contem seus projetos do Arduino IDE, como por exemplo:
+
 ```bash
-cd C:\Users\Usuario\Desktop\MelhorProjetoDeLabDig
+cd C:\Users\Usuario\Documentos\Arduino
 ```
+
 Para clonar utilizando o protocolo HTTPS, utilize o comando abaixo:
+
 ```bash
 git clone https://github.com/GabZamba/LabDigII-Projeto-Firmware.git
 ```
+
 Para clonar utilizando o protocolo SSH, utilize o comando abaixo:
+
 ```bash
 git clone git@github.com:GabZamba/LabDigII-Projeto-Firmware.git
 ```
 
+## Configuração do Arduino IDE
 
-## Etapa 2:  Executando o Projeto Localmente
+Para gravar o código utilizando o Arduino IDE, é necessário adicionar a placa ESP8266 ao gerenciador de placas. Para isso, siga os passos abaixo:
 
+### Etapa 1: Adicionar a URL do Gerenciador de Placas
+
+Abra o Arduino IDE e vá em **Arquivo > Preferências**. No campo **URLs Adicionais de Gerenciadores de Placas**, cole a URL abaixo e clique em OK.
+
+```bash
+https://arduino.esp8266.com/stable/package_esp8266com_index.json
+```
+
+### Etapa 2: Instalar a Placa ESP8266
+
+Vá em **Ferramentas > Placa > Gerenciador de Placas**. Procure por **esp8266** e instale a versão mais recente.
+
+### Etapa 3: Selecionar a Placa ESP8266
+
+Vá em **Ferramentas > Placa** e selecione a placa **NodeMCU 1.0 (ESP-12E Module)**.
+
+### Etapa 4: Instalar as Bibliotecas
+
+Para instalar as bibliotecas necessárias, vá em **Sketch > Incluir Biblioteca > Gerenciar Bibliotecas**. Procure por **PubSubClient** e instale a versão mais recente.
+
+### Etapa 5: Selecionar a Porta de Comunicação
+
+Com o ESP8266 já conctado no seu computador através do USB, para selecionar a porta de comunicação, vá em **Ferramentas > Porta** e selecione a porta que está conectada à placa.
+
+### Etapa 6: Gravar o Código
+
+Para gravar o código no ESP8266, clique em **Verificar** e em seguida em **Gravar**.
 
 
 *PARABÉNS, VOCÊ CONSEGUIU RODAR O PROJETO 🎉🎉🎉*
